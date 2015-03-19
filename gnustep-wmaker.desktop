@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=GNUstep + Window maker
+Comment=This session logs you into Window Maker with a GNUstep environment
+Exec=/usr/local/bin/gnustep-wmaker
+# no icon yet, only the top three are currently used
+Icon=
+Type=Application
