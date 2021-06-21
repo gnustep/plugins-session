@@ -1,8 +1,9 @@
 #!/bin/sh
 
+export PATH="${PATH}:${HOME}/.rvm/bin"
+
 # Source GNUstep shell script to build environment...
-if [ -e /usr/GNUstep/System/Library/Makefiles/GNUstep.sh ]
-then
+if [ -e /usr/GNUstep/System/Library/Makefiles/GNUstep.sh ]; then
 	. /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
 fi
 
