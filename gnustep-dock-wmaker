@@ -1,0 +1,24 @@
+#!/bin/sh
+
+[ -r "$HOME/.Xresources" ] && xrdb "$HOME/.Xresources"
+xsetroot -solid grey
+
+# Source GNUstep shell script to build environment...
+if [ -e /usr/GNUstep/System/Library/Makefiles/GNUstep.sh ]
+then
+        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
+fi
+
+# Set up LD_LIBRARY_PATH
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+
+# defaults write NSGlobalDomain GSSuppressAppIcon YES
+# defaults write NSGlobalDomain GSAppOwnsMiniwindow YES
+# defaults write WindowMaker GSUseIconManager NO
+# defaults write NSGlobalDomain GSUseIconManager YES
+# defaults write NSGlobalDomain UseWindowMakerIcons YES
+# defaults write WindowMaker DisableMiniwindows YES
+
+/home/heron/Development/apps-dock/DockWM.app/DockWM &
+
+exec wmaker --no-dock --no-clip --no-drawer
