@@ -3,18 +3,53 @@
 [ -r "$HOME/.Xresources" ] && xrdb "$HOME/.Xresources"
 xsetroot -solid grey
 
-# Source GNUstep shell script to build environment...
-if [ -e /usr/GNUstep/System/Library/Makefiles/GNUstep.sh ]
-then
-        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
+# A display manager need not inherit an interactive GNUstep environment.
+session_makefiles=${GNUSTEP_MAKEFILES:-}
+if [ -z "$session_makefiles" ] && command -v gnustep-config >/dev/null 2>&1; then
+    session_makefiles=$(gnustep-config --variable=GNUSTEP_MAKEFILES)
 fi
+for session_environment in \
+    "${session_makefiles}/GNUstep.sh" \
+    /usr/GNUstep/System/Library/Makefiles/GNUstep.sh \
+    /usr/local/share/GNUstep/Makefiles/GNUstep.sh \
+    /usr/share/GNUstep/Makefiles/GNUstep.sh
+do
+    if [ -r "$session_environment" ]; then
+        . "$session_environment"
+        break
+    fi
+done
 
 # Set up LD_LIBRARY_PATH
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}/usr/local/lib
+export LD_LIBRARY_PATH
 
-DockWM &
 wdwrite WindowMaker DisableMiniwindows YES
 export XCURSOR_SIZE=16
 [ -r "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
+
+# Keep diagnostics after a failed launch or a later crash.  A subshell records
+# the exit status without replacing Window Maker as the session's main process.
+session_log_dir=${XDG_STATE_HOME:-"$HOME/.local/state"}/gnustep-session
+if (umask 077; mkdir -p "$session_log_dir"); then
+    session_dock_log=$session_log_dir/DockWM.log
+else
+    session_dock_log=/dev/stderr
+fi
+(
+    umask 077
+    printf '\nStarting DockWM: %s\n' "$(date)"
+    if command -v openapp >/dev/null 2>&1; then
+        openapp DockWM
+    elif command -v DockWM >/dev/null 2>&1; then
+        DockWM
+    else
+        echo 'Cannot start DockWM: install DockWM and the GNUstep runtime.' >&2
+        exit 127
+    fi
+    session_dock_status=$?
+    printf 'DockWM exited with status %s: %s\n' "$session_dock_status" "$(date)"
+    exit "$session_dock_status"
+) >>"$session_dock_log" 2>&1 &
 
 exec wmaker --no-dock --no-drawer
