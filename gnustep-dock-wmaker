@@ -12,13 +12,9 @@ fi
 # Set up LD_LIBRARY_PATH
 LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
 
-# defaults write NSGlobalDomain GSSuppressAppIcon YES
-# defaults write NSGlobalDomain GSAppOwnsMiniwindow YES
-# defaults write WindowMaker GSUseIconManager NO
-# defaults write NSGlobalDomain GSUseIconManager YES
-# defaults write NSGlobalDomain UseWindowMakerIcons YES
-# defaults write WindowMaker DisableMiniwindows YES
+DockWM &
+wdwrite WindowMaker DisableMiniwindows YES
+export XCURSOR_SIZE=16
+[ -r "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
 
-/home/heron/Development/apps-dock/DockWM.app/DockWM &
-
-exec wmaker --no-dock --no-clip --no-drawer
+exec wmaker --no-dock --no-drawer
